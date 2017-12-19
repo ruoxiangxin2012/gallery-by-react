@@ -1,0 +1,46 @@
+@import "../../../styles/color.scss";
+@mixin commonBtn {
+  padding:0 8px;
+  font-size: 14px;
+  height: 38px;
+  line-height: 40px;
+  color: #fff;
+  text-align: center;
+  background-color: $color-plus-red;
+  border: solid 1px $color-orange;
+}
+.XpathSerch{
+  display: flex;
+  justify-content: center;
+  padding: 5px;
+  height: 40px;
+  border: solid 1px $color-orange;
+  background-color: $color-write;
+
+  .serchInput{
+    width: 400px;
+    input {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      border: solid 1px $color-orange;
+      border-left: none;
+      border-right: none;
+
+      &:focus{
+        border-color: $color-plus-red;
+      }
+    }
+  }
+  .tipBtn{
+    @include commonBtn;
+    border-radius: 4px 0 0 4px;
+  }
+  .serchBtn{
+    @include commonBtn;
+    border-radius: 0 4px 4px 0;
+    &:hover{
+      cursor: pointer;
+    }
+  }
+}

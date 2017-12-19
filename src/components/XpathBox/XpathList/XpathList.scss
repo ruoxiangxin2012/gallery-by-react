@@ -1,0 +1,58 @@
+@import "../../../styles/color.scss";
+.XpathList{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  border: solid 1px $color-orange;
+  border-top: none;
+
+  .xpathTitle{
+    background-color: $color-orange;
+    color: #fff;
+    font-size: 16px;
+    line-height: 40px;
+  }
+
+  .xpathListItem{
+    border: solid 1px $color-orange;
+    margin: 5px;
+    border-radius: 4px;
+    text-align: left;
+
+    .itemTitle{
+      position: relative;
+      line-height: 30px;
+      color: $color-plus-red;
+      font-size: 14px;
+      padding-left: 5px;
+      border-bottom: dashed 1px $color-orange;
+
+      .delBtn{
+        display: inline-block;
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        text-align: center;
+        color: #fff;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        border-radius: 50% 50%;
+        font-size: 12px;
+        font-weight: 600;
+        background-color: $color-plus-red;
+        cursor: pointer;
+
+        &:hover{
+          box-shadow: 0 0 1px 1px $color-plus-orange;
+        }
+      }
+    }
+    .itemContent{
+      color: $color-plus-orange;
+      font-size: 12px;
+      padding: 10px 5px;
+    }
+  }
+}

@@ -1,0 +1,26 @@
+@import "../../styles/color.scss";
+$right-slider-width: 350px;
+.XpathBox{
+  width: 100%;
+  height: 100%;
+  .header{
+  }
+  .content{
+    display: flex;
+    align-items: stretch;
+    min-height: 800px;
+    .leftSilder{
+      flex-grow: 1;
+    }
+    .rightSilder{
+      width: $right-slider-width;
+    }
+  }
+}
+
+input{
+  border: none;
+  outline:medium;
+  padding: 3px 10px;
+  color: $font-defult-color;
+}
