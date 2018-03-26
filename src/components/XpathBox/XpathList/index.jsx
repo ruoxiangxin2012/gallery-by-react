@@ -11,40 +11,48 @@ class XpathList extends PureComponent {
       PropTypes.string,
       PropTypes.object,
     ]),
-    xpathList: PropTypes.array,
+    chooseXpath: PropTypes.object,
     onDelXpathList: PropTypes.func,
+    changeChooseXpath: PropTypes.func,
   };
   static defaultProps = {
     className: '',
-    xpathList: [],
-    onDelXpathList: () => {},
+    chooseXpath: {
+      xpath: '',
+      nodeValues: [],
+    },
+    changeChooseXpath: () => {},
   };
+  changeChooseXpath = e =>
+    this.props.changeChooseXpath(e.target.value);
 
   render() {
     const {
       className,
-      xpathList,
-      onDelXpathList,
+      chooseXpath,
     } = this.props;
     return (
       <ul className={classnames(localStyles.XpathList, className)}>
         <li className={localStyles.xpathTitle}>xpath路径</li>
-        {
-          xpathList.map((val, index) => (
-            <li className={localStyles.xpathListItem} key={val.key}>
-              <div className={localStyles.itemTitle}>
-                {val.text}
-                <span
-                  onClick={() => onDelXpathList(index)}
-                  className={localStyles.delBtn}
-                >X</span>
-              </div>
-              <div className={localStyles.itemContent}>
-                {val.xpath}
-              </div>
-              </li>
-          ))
-        }
+        <li className={localStyles.xpathListItem}>
+          <span className={localStyles.label}>xpath:</span>
+          <input
+            className={localStyles.input}
+            value={chooseXpath.xpath}
+            onChange={this.changeChooseXpath}
+            type="text"
+          />
+        </li>
+        <li className={localStyles.xpathListItem}>
+          <span className={localStyles.label}>采集:</span>
+          <ul className={localStyles.detail}>
+            {
+              chooseXpath.nodeValues.map(val => (
+                <li className={localStyles.detailItem} key={val.key}>{val.value}</li>
+              ))
+            }
+          </ul>
+        </li>
       </ul>
     )
   }

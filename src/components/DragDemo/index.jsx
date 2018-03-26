@@ -9,7 +9,7 @@ import localStyles from './DragDemo.scss'
 import DragSourceNode from './dragSource';
 import DragTargetNode from './dragTarget';
 
-class XpathBox extends PureComponent {
+class DragBox extends PureComponent {
   static propTypes = {
     className : PropTypes.oneOfType([
       PropTypes.string,
@@ -25,15 +25,17 @@ class XpathBox extends PureComponent {
     } = this.props;
     return (
       <div className={classnames(localStyles.panel, className)}>
-        <DragTargetNode />
-        <DragSourceNode name="1" />
-        <DragSourceNode name="3" />
-        <DragSourceNode name="fas" />
-        <DragSourceNode name="fa" />
-        <DragSourceNode name="Glass" />
+        <div style={{ overflow: 'hidden', clear: 'both' }}>
+          <DragTargetNode />
+        </div>
+        <div style={{ overflow: 'hidden', clear: 'both' }}>
+          <DragSourceNode name="Glass" />
+          <DragSourceNode name="Banana" />
+          <DragSourceNode name="Paper" />
+        </div>
       </div>
     )
   }
 }
 
-export default DragDropContext(HTML5Backend)(XpathBox);
+export default DragDropContext(HTML5Backend)(DragBox);

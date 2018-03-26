@@ -1,0 +1,17 @@
+@import "../../../styles/color.scss";
+.card{
+  border: solid 1px $color-orange;
+
+  .header{
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: solid 1px $color-plus-orange;
+    background-color: $color-orange;
+    color: $color-plus-red;
+    cursor: move;
+  }
+  .content{
+    font-size: 12px;
+    padding: 10px;
+  }
+}

@@ -22,25 +22,27 @@ class XpathBox extends PureComponent {
  state = {
    xpathList: [],
    xpathUrl: 'http://baidu.com',
+   chooseXpath: {
+     xpath: '',
+     nodeValues: [],
+   },
  };
 
  changeUrl= newUrl =>
    this.setState({
      xpathUrl: newUrl,
    });
-  onAddXpath = newXpath => {
+  changeChooseXpath = newChooseXpath =>
     this.setState({
-      xpathList: [...this.state.xpathList, newXpath]
-    })
-  };
-  onDelXpathList = index => {
-    let newXpathList = this.state.xpathList;
-    newXpathList.splice(index, 1);
-    console.log(newXpathList);
+      chooseXpath: newChooseXpath,
+    });
+  changeXpath = xpath =>
     this.setState({
-      xpathList: [...newXpathList],
-    })
-  };
+      chooseXpath: {
+        ...this.state.chooseXpath,
+        xpath: xpath,
+      },
+    });
 
   render() {
     const {
@@ -48,7 +50,7 @@ class XpathBox extends PureComponent {
     } = this.props;
     const {
       xpathUrl,
-      xpathList,
+      chooseXpath,
     } = this.state;
     return (
       <div className={classnames(localStyles.XpathBox, className)}>
@@ -60,13 +62,14 @@ class XpathBox extends PureComponent {
         </div>
         <div className={localStyles.content}>
           <XpathChooseBox
-            onAddXpath={this.onAddXpath}
+            changeChooseXpath={this.changeChooseXpath}
             xpathUrl={urlSource.html}
+            chooseXpath={chooseXpath.xpath}
             className={localStyles.leftSilder}
           />
           <XpathList
-            xpathList={xpathList}
-            onDelXpathList={this.onDelXpathList}
+            chooseXpath={chooseXpath}
+            changeChooseXpath={this.changeXpath}
             className={localStyles.rightSilder}
           />
         </div>

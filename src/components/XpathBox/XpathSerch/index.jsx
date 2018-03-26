@@ -19,6 +19,9 @@ class XpathSerch extends PureComponent {
     xpathUrl: '',
     changeUrl: () => {}
   };
+  state = {
+    newUrl: this.props.xpathUrl,
+  };
   onSerch = () =>
     this.props.changeUrl(this.state.newUrl);
   onChangeNewUrl = (e) => {
@@ -26,11 +29,6 @@ class XpathSerch extends PureComponent {
       newUrl: e.target.value,
     })
   };
-
-  state = {
-    newUrl: this.props.xpathUrl,
-  };
-
   render() {
     const {
       className,
@@ -41,15 +39,17 @@ class XpathSerch extends PureComponent {
     return (
       <div className={classnames(localStyles.XpathSerch, className)}>
         <div className={localStyles.tipBtn}>URL</div>
-        <div  className={localStyles.serchInput} >
+        <div className={localStyles.serchInput} >
           <input
             onChange={this.onChangeNewUrl}
             type="text"
-            value={newUrl} />
+            value={newUrl}
+          />
         </div>
         <div
           onClick={() => this.onSerch()}
-          className={localStyles.serchBtn}>搜索</div>
+          className={localStyles.serchBtn}
+        >搜索</div>
       </div>
     )
   }

@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { DropTarget } from 'react-dnd';
+import ItemTypes from '../dragType';
 
 const boxTarget = {
   drop() {
@@ -33,11 +34,15 @@ class DragTargetNode extends PureComponent {
   };
   static defaultProps = {
     className: '',
+    isOver: false,
+    canDrop: false,
+    connectDropTarget: () => {},
   };
   render() {
     const {
       isOver,
       canDrop,
+      connectDropTarget,
     } = this.props;
     const isActive = canDrop && isOver;
     let backgroundColor = '#222';
@@ -47,14 +52,16 @@ class DragTargetNode extends PureComponent {
       backgroundColor = 'darkkhaki'
     }
     return (
-      <div style={{ ...style, backgroundColor }}>
-        {isActive ? 'Release to drop' : 'Drag a box here'}
-      </div>
+      connectDropTarget(
+        <div style={{ ...style, backgroundColor }}>
+          {isActive ? 'Release to drop' : 'Drag a box here'}
+        </div>
+      )
     )
   }
 }
 
-export default DropTarget('demo', boxTarget, (connect, monitor) => ({
+export default DropTarget(ItemTypes.BOX, boxTarget, (connect, monitor) => ({
   connectDropTarget: connect.dropTarget(),
   isOver: monitor.isOver(),
   canDrop: monitor.canDrop(),

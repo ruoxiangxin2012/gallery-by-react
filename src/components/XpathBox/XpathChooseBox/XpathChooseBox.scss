@@ -13,4 +13,35 @@
     box-sizing: border-box;
     pointer-events: none;
   }
+  .menu{
+    position: absolute;
+    width: 150px;
+    background-color: $color-orange;
+
+    ul{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border: solid 1px $color-plus-red;
+      color: #fff;
+
+      li{
+        line-height: 36px;
+        font-size: 14px;
+        &:hover{
+          cursor: pointer;
+          background-color: $color-plus-red;
+        }
+      }
+    }
+  }
+}
+
+.choosed{
+  background-color: $main-color !important;
+  opacity: .3 !important;
+}
+
+.hide{
+  display: none !important;
 }

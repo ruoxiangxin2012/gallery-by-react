@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { DragSource } from 'react-dnd';
+import ItemTypes from '../dragType';
 
 const style = {
   border: '1px dashed gray',
@@ -14,16 +15,16 @@ const style = {
   float: 'left',
 };
 const boxSource = {
-  beginDrag: props =>{
-    console.log(1);
+  beginDrag(props) {
     return {
       name: props.name,
     }
   },
 
-  endDrag: (props, monitor) => {
+  endDrag(props, monitor) {
     const item = monitor.getItem();
     const dropResult = monitor.getDropResult();
+    console.log(dropResult);
 
     if (dropResult) {
       alert(`You dropped ${item.name} into ${dropResult.name}!`) // eslint-disable-line no-alert
@@ -47,16 +48,17 @@ class DragSourceNode extends PureComponent {
   render() {
     const {
       isDragging,
+      connectDragSource,
     } = this.props;
     const { name } = this.props;
     const opacity = isDragging ? 0.4 : 1;
     return (
-      <div style={{ ...style, opacity }}>{name}</div>
+      connectDragSource(<div style={{ ...style, opacity }}>{name}</div>)
     )
   }
 }
 
-export default DragSource('demo', boxSource , (connect, monitor) => ({
+export default DragSource(ItemTypes.BOX, boxSource , (connect, monitor) => ({
   connectDragSource: connect.dragSource(),
   isDragging: monitor.isDragging(),
 }))(DragSourceNode);
