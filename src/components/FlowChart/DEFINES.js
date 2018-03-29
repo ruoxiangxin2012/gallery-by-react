@@ -10,6 +10,7 @@ export const ACTION = {
   CLICK: { text: '点击', type: 'CLICK' },
   OPENPAGE: { text: '打开网页', type: 'OPENPAGE' },
   GETDATA: { text: '收集数据', type: 'GETDATA' },
+  CYCLE: { text: '循环', type: 'CYCLE' },
 };
 
 export const NODES = {
@@ -27,5 +28,10 @@ export const NODES = {
     TYPE: ACTION.GETDATA.type,
     COLOR: '#997',
     SHAPE: SHAPE.TRIANGLE,
-  }
+  },
+  CYCLE: {
+    TYPE: ACTION.CYCLE.type,
+    COLOR: '#967',
+    SHAPE: SHAPE.ROUNDEDRECTANGLE,
+  },
 };

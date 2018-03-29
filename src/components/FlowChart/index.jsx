@@ -21,10 +21,16 @@ class FlowChart extends PureComponent {
         text: '点击',
         type: 'CLICK',
         key: 2,
+        group: 4,
       },{
         text: '获取数据',
         type: 'GETDATA',
         key: 3,
+      },{
+        text: '循环',
+        type: 'CYCLE',
+        key: 4,
+        isGroup: true,
       }],
       links: [{
         to: 1,
@@ -32,7 +38,7 @@ class FlowChart extends PureComponent {
       },{
         to: 2,
         from: 3,
-      }],
+      },],
     },
   };
 
@@ -60,6 +66,8 @@ class FlowChart extends PureComponent {
       text: chooseAction.text,
       type: chooseAction.type,
       key: newKey,
+      group: nodedata.group,
+      isGroup: chooseAction.type === ACTION.CYCLE.type,
     };
     const newLink = {
       to: newKey,
@@ -67,7 +75,6 @@ class FlowChart extends PureComponent {
     };
     this.addNodes([newNode]);
     this.addLinks([newLink]);
-    console.log(this.state.modeData);
   };
 
   addNodes(nodes) {
@@ -105,8 +112,11 @@ class FlowChart extends PureComponent {
             this.$("ContextMenuButton",
               this.$(go.TextBlock, ACTION.CLICK.text),
                 { click: this.createNode }),
+            this.$("ContextMenuButton",
+              this.$(go.TextBlock, ACTION.CYCLE.text),
+                { click: this.createNode }),
               this.$("ContextMenuButton",
-                this.$(go.TextBlock, ACTION.GETDATA.text),
+              this.$(go.TextBlock, ACTION.GETDATA.text),
                 { click: this.createNode })
               // more ContextMenuButtons would go here
             ) // end Adornment
@@ -124,8 +134,29 @@ class FlowChart extends PureComponent {
   };
 
   createGroupTemplate = () => {
-
-  };
+    this.diagram.groupTemplate =
+      this.$(go.Group,
+        "Vertical",
+        {
+          selectionObjectName: "PANEL",
+          locationObjectName: "PANEL",
+        },
+        this.$(go.TextBlock,
+          {
+            font: "bold 14px sans-serif",
+            isMultiline: false, // don't allow newlines in text
+            editable: true // allow in-place editing by user
+          },
+          new go.Binding("text", "text").makeTwoWay(),
+          new go.Binding("stroke", "color")),
+        this.$(go.Panel, "Auto",
+          { name: "PANEL" },
+          this.$(go.Shape,
+            new go.Binding("figure", "shape").makeTwoWay(),
+            new go.Binding("fill", "color").makeTwoWay()),
+          this.$(go.Placeholder, { margin: 10, background: "transparent" })
+        ),
+        )};
 
   setModal = (data = {}) => {
     const formatData = this.formatDatas(data);
@@ -141,8 +172,7 @@ class FlowChart extends PureComponent {
       {
         initialContentAlignment: go.Spot.Center, // center Diagram contents
         "undoManager.isEnabled": true, // enable Ctrl-Z to undo and Ctrl-Y to redo
-        "grid.visible": true,
-        "grid.gridCellSize": new go.Size(8, 8),
+        "commandHandler.archetypeGroupData": { text: "Group", isGroup: true, color: "blue" },
       });
   };
   createLayout = () => {
@@ -160,6 +190,7 @@ class FlowChart extends PureComponent {
     this.createLayout();
     this.createNodeTemplate();
     this.createLinkTemplate();
+    this.createGroupTemplate();
     this.setModal(this.state.modeData);
   }
 
