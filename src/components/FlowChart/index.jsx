@@ -34,9 +34,9 @@ class FlowChart extends PureComponent {
       }],
       links: [{
         to: 1,
-        from: 2,
+        from: 4,
       },{
-        to: 2,
+        to: 4,
         from: 3,
       },],
     },
@@ -127,36 +127,81 @@ class FlowChart extends PureComponent {
   createLinkTemplate = () => {
     this.diagram.linkTemplate =
       this.$(go.Link,
+        { routing: go.Link.Orthogonal, corner: 10 },
         this.$(go.Shape), // the link shape
         this.$(go.Shape, // the arrowhead
-          { toArrow: "OpenTriangle", fill: null }),
+          { toArrow: "OpenTriangle"}),
       )
   };
+  
+  randomGroup = () => {};
 
   createGroupTemplate = () => {
     this.diagram.groupTemplate =
-      this.$(go.Group,
-        "Vertical",
-        {
-          selectionObjectName: "PANEL",
-          locationObjectName: "PANEL",
+      this.$(go.Group, "Auto",
+        { // define the group's internal layout
+          layout: this.$( go.LayeredDigraphLayout, {
+            direction: 90,
+            layerSpacing: 25,
+            columnSpacing: 25,
+          }),
+          // the group begins unexpanded;
+          // upon expansion, a Diagram Listener will generate contents for the group
+          isSubGraphExpanded: true,
+          // when a group is expanded, if it contains no parts, generate a subGraph inside of it
+          // subGraphExpandedChanged: function(group) {
+          //   if (group.memberParts.count === 0) {
+          //     this.randomGroup(group.data.key);
+          //   }
+          // }
         },
-        this.$(go.TextBlock,
-          {
-            font: "bold 14px sans-serif",
-            isMultiline: false, // don't allow newlines in text
-            editable: true // allow in-place editing by user
-          },
-          new go.Binding("text", "text").makeTwoWay(),
-          new go.Binding("stroke", "color")),
-        this.$(go.Panel, "Auto",
-          { name: "PANEL" },
-          this.$(go.Shape,
-            new go.Binding("figure", "shape").makeTwoWay(),
-            new go.Binding("fill", "color").makeTwoWay()),
-          this.$(go.Placeholder, { margin: 10, background: "transparent" })
-        ),
-        )};
+        this.$(go.Shape, "Rectangle",
+          { fill: null, stroke: "gray", strokeWidth: 2 }),
+        this.$(go.Panel, "Vertical",
+          { defaultAlignment: go.Spot.Left, margin: 4 },
+          this.$(go.Panel, "Horizontal",
+            { defaultAlignment: go.Spot.Top },
+            // the SubGraphExpanderButton is a panel that functions as a button to expand or collapse the subGraph
+            this.$("SubGraphExpanderButton"),
+            this.$(go.TextBlock,
+              {
+                font: "Bold 14px Sans-Serif",
+                margin: 5,
+                editable: true,
+              },
+              new go.Binding("text", "text").makeTwoWay())
+          ),
+          // create a placeholder to represent the area where the contents of the group are
+          this.$(go.Placeholder,
+            { padding: new go.Margin(0, 10) })
+        )
+      );
+
+    // this.diagram.groupTemplate =
+    //   this.$(go.Group,
+    //     "Auto",
+    //     { // define the group's internal layout
+    //       layout: this.$( go.LayeredDigraphLayout, {
+    //         direction: 90,
+    //         layerSpacing: 25,
+    //         columnSpacing: 25,
+    //       },),
+    //     },
+    //     this.$(go.Shape, "Rectangle",
+    //       { fill: null, stroke: "gray", strokeWidth: 2 }),
+    //     this.$(go.Panel, "Vertical",
+    //       { defaultAlignment: go.Spot.Left, margin: 4 },
+    //       this.$(go.TextBlock,
+    //                 {
+    //                   font: "Bold 14px Sans-Serif",
+    //                   margin: 5,
+    //                   editable: true,
+    //                 },
+    //         new go.Binding("text", "text").makeTwoWay())
+    //     ),
+    //       this.$(go.Placeholder, { margin: 10, background: "transparent" })
+    //     )
+  };
 
   setModal = (data = {}) => {
     const formatData = this.formatDatas(data);
@@ -170,9 +215,8 @@ class FlowChart extends PureComponent {
   createDiagram = () => {
     this.diagram = this.$(go.Diagram, this.myDiagramNode,
       {
-        initialContentAlignment: go.Spot.Center, // center Diagram contents
-        "undoManager.isEnabled": true, // enable Ctrl-Z to undo and Ctrl-Y to redo
-        "commandHandler.archetypeGroupData": { text: "Group", isGroup: true, color: "blue" },
+        initialContentAlignment: go.Spot.TopCenter, // center Diagram contents
+        initialAutoScale: go.Diagram.UniformToFill,
       });
   };
   createLayout = () => {
@@ -199,7 +243,7 @@ class FlowChart extends PureComponent {
       <div>
         <div
           ref={(node) => { this.myDiagramNode = node; }}
-          style={{width:'100%', height:400, backgroundColor: '#DAE4E4'}}
+          style={{width:'100%', height: 800 , backgroundColor: '#DAE4E4'}}
         />
 
         {/*<div*/}
