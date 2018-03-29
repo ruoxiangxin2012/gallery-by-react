@@ -1,0 +1,26 @@
+@import "../../styles/color.scss";
+.menuPanel{
+  width: 150px;
+  .menu{
+    list-style: none;
+    background-color: $color-write;
+    color: $color-plus-red;
+    border: solid 1px $color-plus-orange;
+    padding: 0;
+    margin: 0;
+    .menuItem{
+      cursor: pointer;
+      line-height: 36px;
+      font-size: 14px;
+
+      &:hover{
+        background-color: $color-plus-red;
+        color: $color-write;
+      }
+    }
+  }
+}
+
+.hide{
+  display: none;
+}
