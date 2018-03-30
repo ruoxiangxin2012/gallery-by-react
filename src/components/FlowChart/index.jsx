@@ -76,6 +76,24 @@ class FlowChart extends PureComponent {
     this.addNodes([newNode]);
     this.addLinks([newLink]);
   };
+  createGroupNode = (e, obj) => {
+    const newKey = uuid();
+    const contextmenu = obj.part;
+    const nodedata = contextmenu.data;
+    const buttontext = obj.elt(1).text;
+    const chooseActionKey = Object.keys(ACTION)
+      .filter(key =>
+        ACTION[key].text === buttontext)[0];
+    const chooseAction = ACTION[chooseActionKey];
+    const newNode = {
+      text: chooseAction.text,
+      type: chooseAction.type,
+      key: newKey,
+      group: nodedata.key,
+      isGroup: chooseAction.type === ACTION.CYCLE.type,
+    };
+    this.addNodes([newNode]);
+  };
 
   addNodes(nodes) {
     nodes.forEach(node =>
@@ -104,22 +122,21 @@ class FlowChart extends PureComponent {
           },
           new go.Binding("text", "text").makeTwoWay()),
         {
-          contextMenu:     // define a context menu for each node
-            this.$(go.Adornment, "Vertical", // that has one button
-              this.$("ContextMenuButton",
-                this.$(go.TextBlock, ACTION.OPENPAGE.text),
-                { click: this.createNode }),
+          contextMenu: this.$(go.Adornment, "Vertical", // that has one button
+            this.$("ContextMenuButton",
+              this.$(go.TextBlock, ACTION.OPENPAGE.text),
+              { click: this.createNode }),
             this.$("ContextMenuButton",
               this.$(go.TextBlock, ACTION.CLICK.text),
-                { click: this.createNode }),
+              { click: this.createNode }),
             this.$("ContextMenuButton",
               this.$(go.TextBlock, ACTION.CYCLE.text),
-                { click: this.createNode }),
-              this.$("ContextMenuButton",
+              { click: this.createNode }),
+            this.$("ContextMenuButton",
               this.$(go.TextBlock, ACTION.GETDATA.text),
-                { click: this.createNode })
-              // more ContextMenuButtons would go here
-            ) // end Adornment
+              { click: this.createNode })
+            // more ContextMenuButtons would go here
+          ) // end Adornment
         }
       );
   };
@@ -173,34 +190,27 @@ class FlowChart extends PureComponent {
           ),
           // create a placeholder to represent the area where the contents of the group are
           this.$(go.Placeholder,
-            { padding: new go.Margin(0, 10) })
-        )
-      );
-
-    // this.diagram.groupTemplate =
-    //   this.$(go.Group,
-    //     "Auto",
-    //     { // define the group's internal layout
-    //       layout: this.$( go.LayeredDigraphLayout, {
-    //         direction: 90,
-    //         layerSpacing: 25,
-    //         columnSpacing: 25,
-    //       },),
-    //     },
-    //     this.$(go.Shape, "Rectangle",
-    //       { fill: null, stroke: "gray", strokeWidth: 2 }),
-    //     this.$(go.Panel, "Vertical",
-    //       { defaultAlignment: go.Spot.Left, margin: 4 },
-    //       this.$(go.TextBlock,
-    //                 {
-    //                   font: "Bold 14px Sans-Serif",
-    //                   margin: 5,
-    //                   editable: true,
-    //                 },
-    //         new go.Binding("text", "text").makeTwoWay())
-    //     ),
-    //       this.$(go.Placeholder, { margin: 10, background: "transparent" })
-    //     )
+            { padding: new go.Margin(0, 10) }),
+          ),
+        {
+          contextMenu:     // define a context menu for each node
+            this.$(go.Adornment, "Vertical", // that has one button
+              this.$("ContextMenuButton",
+                this.$(go.TextBlock, ACTION.OPENPAGE.text),
+                { click: this.createGroupNode }),
+              this.$("ContextMenuButton",
+                this.$(go.TextBlock, ACTION.CLICK.text),
+                { click: this.createGroupNode }),
+              this.$("ContextMenuButton",
+                this.$(go.TextBlock, ACTION.CYCLE.text),
+                { click: this.createGroupNode }),
+              this.$("ContextMenuButton",
+                this.$(go.TextBlock, ACTION.GETDATA.text),
+                { click: this.createGroupNode })
+              // more ContextMenuButtons would go here
+            ) // end Adornment
+        }
+        );
   };
 
   setModal = (data = {}) => {
@@ -217,7 +227,8 @@ class FlowChart extends PureComponent {
       {
         initialContentAlignment: go.Spot.TopCenter, // center Diagram contents
         initialAutoScale: go.Diagram.UniformToFill,
-      });
+      },
+      );
   };
   createLayout = () => {
     this.diagram.layout = this.$(
@@ -227,6 +238,10 @@ class FlowChart extends PureComponent {
         columnSpacing: 25,
       },
     );
+  };
+
+  save = () => {
+    console.log(this.diagram.model.toJson())
   };
 
   componentDidMount() {
@@ -256,6 +271,7 @@ class FlowChart extends PureComponent {
             {/*<li className={myStyle.menuItem}>获取数据</li>*/}
           {/*</ul>*/}
         {/*</div>*/}
+        <div onClick={this.save}> 保存</div>
       </div>
     );
   }
