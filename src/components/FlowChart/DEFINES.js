@@ -27,7 +27,7 @@ export const NODES = {
   GETDATA: {
     TYPE: ACTION.GETDATA.type,
     COLOR: '#997',
-    SHAPE: SHAPE.TRIANGLE,
+    SHAPE: SHAPE.DIAMOND,
   },
   CYCLE: {
     TYPE: ACTION.CYCLE.type,

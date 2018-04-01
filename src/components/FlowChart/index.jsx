@@ -17,30 +17,41 @@ class FlowChart extends PureComponent {
         text: '打开页面',
         type: 'OPENPAGE',
         key: 1,
-      },{
-        text: '点击',
-        type: 'CLICK',
-        key: 2,
-        group: 4,
-      },{
-        text: '获取数据',
-        type: 'GETDATA',
-        key: 3,
-      },{
-        text: '循环',
-        type: 'CYCLE',
-        key: 4,
-        isGroup: true,
       }],
-      links: [{
-        to: 1,
-        from: 4,
-      },{
-        to: 4,
-        from: 3,
-      },],
+      links: [],
     },
   };
+  // 手动连线功能 begin========================================
+  nodeSelectionAdornmentTemplate =
+    this.$(go.Adornment, "Auto",
+      this.$(go.Shape, { fill: null, stroke: "deepskyblue", strokeWidth: 1.5, strokeDashArray: [4, 2] }),
+      this.$(go.Placeholder)
+    );
+  
+  makePort = (name, spot, output, input) => {
+    // the port is basically just a small transparent square
+    return this.$(go.Shape, "Circle",
+      {
+        fill: null, // not seen, by default; set to a translucent gray by showSmallPorts, defined below
+        stroke: null,
+        desiredSize: new go.Size(7, 7),
+        alignment: spot, // align the port on the main Shape
+        alignmentFocus: spot, // just inside the Shape
+        portId: name, // declare this object to be a "port"
+        fromSpot: spot, toSpot: spot, // declare where links may connect at this port
+        fromLinkable: output, toLinkable: input, // declare whether the user may draw links to/from here
+        cursor: "pointer" // show a different cursor to indicate potential link point
+      });
+  };
+  
+  showSmallPorts = (node, show) => {
+    node.ports.each(function(port) {
+      if (port.portId !== "") { // don't change the default port, which is the big shape
+        port.fill = show ? "rgba(0,0,0,.3)" : null;
+      }
+    });
+  };
+  // 手动连线功能 end========================================
 
   formatNode = (node) => ({
     ...node,
@@ -111,16 +122,27 @@ class FlowChart extends PureComponent {
 
   createNodeTemplate = () => {
     this.diagram.nodeTemplate =
-      this.$(go.Node, "Auto",
-        this.$(go.Shape,
-          new go.Binding("figure", "shape").makeTwoWay(),
-          new go.Binding("fill", "color").makeTwoWay()),
-        this.$(go.TextBlock,
-          {
-            margin: 5,
-            editable: true,
-          },
-          new go.Binding("text", "text").makeTwoWay()),
+      this.$(go.Node, "Spot",
+        { locationSpot: go.Spot.Center },
+        { selectable: true, selectionAdornmentTemplate: this.nodeSelectionAdornmentTemplate },
+        this.$(go.Panel, "Auto",
+          { name: "PANEL" },
+          this.$(go.Shape,
+            {
+              portId: "", // the default port: if no spot on link data, use closest side
+              fromLinkable: true, toLinkable: true, cursor: "pointer",
+              fill: "white", // default color
+              strokeWidth: 2
+            },
+            new go.Binding("figure", "shape").makeTwoWay(),
+            new go.Binding("fill", "color").makeTwoWay()),
+          this.$(go.TextBlock,
+            {
+              margin: 5,
+              editable: true,
+            },
+            new go.Binding("text", "text").makeTwoWay()),
+        ),
         {
           contextMenu: this.$(go.Adornment, "Vertical", // that has one button
             this.$("ContextMenuButton",
@@ -136,18 +158,45 @@ class FlowChart extends PureComponent {
               this.$(go.TextBlock, ACTION.GETDATA.text),
               { click: this.createNode })
             // more ContextMenuButtons would go here
-          ) // end Adornment
+          ), // end Adornment
+        },
+        this.makePort("T", go.Spot.Top, false, true),
+        this.makePort("L", go.Spot.Left, true, true),
+        this.makePort("R", go.Spot.Right, true, true),
+        this.makePort("B", go.Spot.Bottom, true, false),
+        { // handle mouse enter/leave events to show/hide the ports
+          mouseEnter: (e, node) => { this.showSmallPorts(node, true); },
+          mouseLeave: (e, node) => { this.showSmallPorts(node, false); }
         }
       );
   };
-
+  
+  linkSelectionAdornmentTemplate =
+    this.$(go.Adornment, "Link",
+      this.$(go.Shape,
+        // isPanelMain declares that this Shape shares the Link.geometry
+        { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 0 }) // use selection object's strokeWidth
+    );
   createLinkTemplate = () => {
     this.diagram.linkTemplate =
       this.$(go.Link,
-        { routing: go.Link.Orthogonal, corner: 10 },
-        this.$(go.Shape), // the link shape
+        { selectable: true, selectionAdornmentTemplate: this.linkSelectionAdornmentTemplate,
+          fromPortChanged: (a, b) => {
+            console.log(a, b);
+          },
+          toPortChanged: (link, oldGraph, newGraph) => {}
+        },
+        { relinkableFrom: true, relinkableTo: true, reshapable: true },
+        {
+          routing: go.Link.AvoidsNodes,
+          curve: go.Link.JumpOver,
+          corner: 5,
+          toShortLength: 4
+        },
+        this.$(go.Shape, // the link path shape
+          { isPanelMain: true, strokeWidth: 2 }),
         this.$(go.Shape, // the arrowhead
-          { toArrow: "OpenTriangle"}),
+          { toArrow: "Standard", stroke: null }),
       )
   };
   
@@ -173,7 +222,7 @@ class FlowChart extends PureComponent {
           // }
         },
         this.$(go.Shape, "Rectangle",
-          { fill: null, stroke: "gray", strokeWidth: 2 }),
+          { fill: "white", stroke: "gray", strokeWidth: 2 }),
         this.$(go.Panel, "Vertical",
           { defaultAlignment: go.Spot.Left, margin: 4 },
           this.$(go.Panel, "Horizontal",
@@ -192,6 +241,12 @@ class FlowChart extends PureComponent {
           this.$(go.Placeholder,
             { padding: new go.Margin(0, 10) }),
           ),
+        this.makePort("T", go.Spot.Top, false, true),
+        this.makePort("B", go.Spot.Bottom, true, false),
+        { // handle mouse enter/leave events to show/hide the ports
+          mouseEnter: (e, node) => { this.showSmallPorts(node, true); },
+          mouseLeave: (e, node) => { this.showSmallPorts(node, false); }
+        },
         {
           contextMenu:     // define a context menu for each node
             this.$(go.Adornment, "Vertical", // that has one button
@@ -228,16 +283,50 @@ class FlowChart extends PureComponent {
         initialContentAlignment: go.Spot.TopCenter, // center Diagram contents
         initialAutoScale: go.Diagram.UniformToFill,
       },
+      {
+        contextMenu: this.$(go.Adornment, "Vertical", // that has one button
+          this.$("ContextMenuButton",
+            this.$(go.TextBlock, ACTION.OPENPAGE.text),
+            { click: this.createNode }),
+          this.$("ContextMenuButton",
+            this.$(go.TextBlock, ACTION.CLICK.text),
+            { click: this.createNode }),
+          this.$("ContextMenuButton",
+            this.$(go.TextBlock, ACTION.CYCLE.text),
+            { click: this.createNode }),
+          this.$("ContextMenuButton",
+            this.$(go.TextBlock, ACTION.GETDATA.text),
+            { click: this.createNode })
+          // more ContextMenuButtons would go here
+        ), // end Adornment
+      },
       );
   };
   createLayout = () => {
     this.diagram.layout = this.$(
       go.LayeredDigraphLayout, {
         direction: 90,
-        layerSpacing: 25,
-        columnSpacing: 25,
+        layerSpacing: 20,
+        columnSpacing: 20,
+        setsPortSpots: false,
       },
     );
+  };
+  
+  makePort = (name, spot, output, input) => {
+    // the port is basically just a small transparent square
+    return this.$(go.Shape, "Circle",
+      {
+        fill: null, // not seen, by default; set to a translucent gray by showSmallPorts, defined below
+        stroke: null,
+        desiredSize: new go.Size(7, 7),
+        alignment: spot, // align the port on the main Shape
+        alignmentFocus: spot, // just inside the Shape
+        portId: name, // declare this object to be a "port"
+        fromSpot: spot, toSpot: spot, // declare where links may connect at this port
+        fromLinkable: output, toLinkable: input, // declare whether the user may draw links to/from here
+        cursor: "pointer" // show a different cursor to indicate potential link point
+      });
   };
 
   save = () => {
