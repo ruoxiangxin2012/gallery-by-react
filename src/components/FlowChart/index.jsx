@@ -28,22 +28,6 @@ class FlowChart extends PureComponent {
       this.$(go.Placeholder)
     );
   
-  makePort = (name, spot, output, input) => {
-    // the port is basically just a small transparent square
-    return this.$(go.Shape, "Circle",
-      {
-        fill: null, // not seen, by default; set to a translucent gray by showSmallPorts, defined below
-        stroke: null,
-        desiredSize: new go.Size(7, 7),
-        alignment: spot, // align the port on the main Shape
-        alignmentFocus: spot, // just inside the Shape
-        portId: name, // declare this object to be a "port"
-        fromSpot: spot, toSpot: spot, // declare where links may connect at this port
-        fromLinkable: output, toLinkable: input, // declare whether the user may draw links to/from here
-        cursor: "pointer" // show a different cursor to indicate potential link point
-      });
-  };
-  
   showSmallPorts = (node, show) => {
     node.ports.each(function(port) {
       if (port.portId !== "") { // don't change the default port, which is the big shape
@@ -79,14 +63,17 @@ class FlowChart extends PureComponent {
       key: newKey,
       group: nodedata.group,
       isGroup: chooseAction.type === ACTION.CYCLE.type,
+      expanded: chooseAction.type === ACTION.CYCLE.type || undefined,
     };
     const newLink = {
       to: newKey,
       from: nodedata.key,
+      text: nodedata.type === ACTION.GETDATA.type ? 'Y' : undefined,
     };
     this.addNodes([newNode]);
     this.addLinks([newLink]);
   };
+
   createGroupNode = (e, obj) => {
     const newKey = uuid();
     const contextmenu = obj.part;
@@ -102,6 +89,7 @@ class FlowChart extends PureComponent {
       key: newKey,
       group: nodedata.key,
       isGroup: chooseAction.type === ACTION.CYCLE.type,
+      expanded: chooseAction.type === ACTION.CYCLE.type || undefined,
     };
     this.addNodes([newNode]);
   };
@@ -122,8 +110,7 @@ class FlowChart extends PureComponent {
 
   createNodeTemplate = () => {
     this.diagram.nodeTemplate =
-      this.$(go.Node, "Spot",
-        { locationSpot: go.Spot.Center },
+      this.$(go.Node, "Spot", this.nodeStyle(),
         { selectable: true, selectionAdornmentTemplate: this.nodeSelectionAdornmentTemplate },
         this.$(go.Panel, "Auto",
           { name: "PANEL" },
@@ -161,13 +148,7 @@ class FlowChart extends PureComponent {
           ), // end Adornment
         },
         this.makePort("T", go.Spot.Top, false, true),
-        this.makePort("L", go.Spot.Left, true, true),
-        this.makePort("R", go.Spot.Right, true, true),
         this.makePort("B", go.Spot.Bottom, true, false),
-        { // handle mouse enter/leave events to show/hide the ports
-          mouseEnter: (e, node) => { this.showSmallPorts(node, true); },
-          mouseLeave: (e, node) => { this.showSmallPorts(node, false); }
-        }
       );
   };
   
@@ -180,24 +161,34 @@ class FlowChart extends PureComponent {
   createLinkTemplate = () => {
     this.diagram.linkTemplate =
       this.$(go.Link,
-        { selectable: true, selectionAdornmentTemplate: this.linkSelectionAdornmentTemplate,
-          fromPortChanged: (a, b) => {
-            console.log(a, b);
-          },
-          toPortChanged: (link, oldGraph, newGraph) => {}
-        },
-        { relinkableFrom: true, relinkableTo: true, reshapable: true },
         {
           routing: go.Link.AvoidsNodes,
           curve: go.Link.JumpOver,
-          corner: 5,
-          toShortLength: 4
+          corner: 10,
+          toShortLength: 4,
+          relinkableFrom: true,
+          relinkableTo: true,
+          reshapable: true,
+          selectable: true,
+          selectionAdornmentTemplate: this.linkSelectionAdornmentTemplate,
         },
         this.$(go.Shape, // the link path shape
-          { isPanelMain: true, strokeWidth: 2 }),
+          { isPanelMain: true, strokeWidth: 2 },),
         this.$(go.Shape, // the arrowhead
           { toArrow: "Standard", stroke: null }),
+        this.$(go.TextBlock, { margin: 3, stroke: "gray", editable: true, },
+          new go.Binding("text", "text"))
       )
+  };
+
+  createLinkValidation = () => {
+    const sameGroup = (fromnode, fromport, tonode, toport) => {
+      return fromnode.data.group === tonode.data.group;
+    };
+    this.diagram.toolManager.linkingTool.linkValidation = sameGroup;
+
+    // only allow reconnecting an existing link to a port of the same color
+    this.diagram.toolManager.relinkingTool.linkValidation = sameGroup;
   };
   
   randomGroup = () => {};
@@ -211,9 +202,7 @@ class FlowChart extends PureComponent {
             layerSpacing: 25,
             columnSpacing: 25,
           }),
-          // the group begins unexpanded;
-          // upon expansion, a Diagram Listener will generate contents for the group
-          isSubGraphExpanded: true,
+          isSubGraphExpanded: false,
           // when a group is expanded, if it contains no parts, generate a subGraph inside of it
           // subGraphExpandedChanged: function(group) {
           //   if (group.memberParts.count === 0) {
@@ -221,6 +210,7 @@ class FlowChart extends PureComponent {
           //   }
           // }
         },
+        new go.Binding("isSubGraphExpanded", "expanded").makeTwoWay(),
         this.$(go.Shape, "Rectangle",
           { fill: "white", stroke: "gray", strokeWidth: 2 }),
         this.$(go.Panel, "Vertical",
@@ -281,7 +271,7 @@ class FlowChart extends PureComponent {
     this.diagram = this.$(go.Diagram, this.myDiagramNode,
       {
         initialContentAlignment: go.Spot.TopCenter, // center Diagram contents
-        initialAutoScale: go.Diagram.UniformToFill,
+        // 'toolManager.mouseWheelBehavior': go.ToolManager.WheelZoom,
       },
       {
         contextMenu: this.$(go.Adornment, "Vertical", // that has one button
@@ -308,9 +298,19 @@ class FlowChart extends PureComponent {
         direction: 90,
         layerSpacing: 20,
         columnSpacing: 20,
-        setsPortSpots: false,
       },
     );
+  };
+
+  nodeStyle = () => {
+    return [
+      new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+      {
+        locationSpot: go.Spot.Center,
+        mouseEnter: (e, obj) => { this.showSmallPorts(obj.part, true); },
+        mouseLeave: (e, obj) => { this.showSmallPorts(obj.part, false); }
+      }
+    ];
   };
   
   makePort = (name, spot, output, input) => {
@@ -339,6 +339,7 @@ class FlowChart extends PureComponent {
     this.createNodeTemplate();
     this.createLinkTemplate();
     this.createGroupTemplate();
+    this.createLinkValidation();
     this.setModal(this.state.modeData);
   }
 

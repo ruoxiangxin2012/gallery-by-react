@@ -99,6 +99,39 @@ class XPath {
     return null;
   }
 
+  getElementAllXPath(element) {
+    return this.getElementAllTreeXPath(element);
+  }
+
+  getElementAllTreeXPath(element) {
+    const paths = [];
+
+    for (let currElement = element;
+         currElement && currElement.nodeType === Node.ELEMENT_NODE;
+         currElement = currElement.parentNode
+    ) {
+      let path;
+      if (this.hasElementId(currElement)) {
+        path = `*[@id="${this.getElementId(currElement)}"]`;
+      } else {
+        const currElementIndex = this.getElementXPathIndex(currElement);
+        const hasSiblings = this.hasFollowingSiblings(currElement) || currElementIndex;
+        const className = this.getElementClass(currElement);
+
+        path = hasSiblings ?
+          `${currElement.localName}${className ? `[@class="${className}"]` : ''}[${currElementIndex + 1}]` :
+          currElement.localName;
+      }
+
+      paths.splice(0, 0, path);
+    }
+    if (paths.length) {
+      return `/${paths.join('/')}`;
+    }
+
+    return null;
+  }
+
   getElementByXPath(xpath) {
     try {
       return this.evaluateXPath(xpath);

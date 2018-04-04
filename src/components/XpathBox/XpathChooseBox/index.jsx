@@ -15,11 +15,15 @@ class XpathChooseBox extends PureComponent {
     ]),
     xpathUrl: PropTypes.string,
     chooseXpath: PropTypes.string, //根据传入的xpath渲染相关元素
+    changeChooseXpath: PropTypes.func,
+    changeDocument: PropTypes.func,
   };
   static defaultProps = {
     className: '',
     xpathUrl: '',
     chooseXpath: '',
+    changeChooseXpath: () => {},
+    changeDocument: () => {},
   };
   state = {
     maskAttr: {
@@ -45,6 +49,7 @@ class XpathChooseBox extends PureComponent {
   onIframeLoad = (e) => {
     const iframeNode = e.target || e.srcElement;
     const document = iframeNode.contentWindow.document;
+    this.props.changeDocument(document);
     document.oncontextmenu = e => {
       e.preventDefault();
       this.setState({

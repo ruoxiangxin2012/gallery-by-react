@@ -1,0 +1,59 @@
+@import "../../styles/color.scss";
+.panel{
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  border: solid 1px $main-color;
+  overflow-y: auto;
+
+  .openIcon, .closeIcon{
+    display: inline-block;
+    margin-right: 3px;
+    &:after{
+      content: '\25BC';
+      display: inline-block;
+      font-size: 12px;
+      line-height: 16px;
+      color: $main-color;
+    }
+  }
+  .closeIcon{
+    &:after{
+      content: '\25BA';
+    }
+  }
+
+  .domTreePanel {
+    padding: 5px;
+    text-align: left;
+    font-size: 12px;
+    .nodePanel {
+
+      .nodePanelHeader {
+        &:hover{
+          background-color: $hover-bg-color;
+        }
+      }
+
+      .nodePanelcontaner {
+        margin-right: 5px;
+        .nodePanelContent {
+          background: white;
+          border-left: dotted 1px $color-plus-blue;
+          padding-left: 3px;
+        }
+
+        .nodePanelfooter {
+
+        }
+      }
+
+      &.closePanel {
+        .nodePanelcontaner{
+          height: 0;
+          overflow: hidden;
+        }
+      }
+    }
+  }
+}

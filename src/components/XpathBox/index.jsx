@@ -8,6 +8,7 @@ import XpathSerch from './XpathSerch';
 import XpathList from './XpathList';
 import XpathChooseBox from './XpathChooseBox';
 import urlSource from 'mock/pageSource.json';
+import PageStructure from '../PageStructure';
 
 class XpathBox extends PureComponent {
   static propTypes = {
@@ -26,6 +27,7 @@ class XpathBox extends PureComponent {
      xpath: '',
      nodeValues: [],
    },
+   document: '', // 用于传递给页面结构组件
  };
 
  changeUrl= newUrl =>
@@ -44,6 +46,11 @@ class XpathBox extends PureComponent {
       },
     });
 
+  changeDocument = newDocument =>
+    this.setState({
+      document: newDocument,
+    });
+
   render() {
     const {
       className,
@@ -51,6 +58,7 @@ class XpathBox extends PureComponent {
     const {
       xpathUrl,
       chooseXpath,
+      document,
     } = this.state;
     return (
       <div className={classnames(localStyles.XpathBox, className)}>
@@ -63,6 +71,7 @@ class XpathBox extends PureComponent {
         <div className={localStyles.content}>
           <XpathChooseBox
             changeChooseXpath={this.changeChooseXpath}
+            changeDocument={this.changeDocument}
             xpathUrl={urlSource.html}
             chooseXpath={chooseXpath.xpath}
             className={localStyles.leftSilder}
@@ -72,6 +81,9 @@ class XpathBox extends PureComponent {
             changeChooseXpath={this.changeXpath}
             className={localStyles.rightSilder}
           />
+        </div>
+        <div className={localStyles.footer}>
+          <PageStructure document={document} />
         </div>
       </div>
     )
