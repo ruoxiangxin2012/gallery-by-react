@@ -7,19 +7,31 @@
   overflow-y: auto;
 
   .openIcon, .closeIcon{
+    position: relative;
     display: inline-block;
+    width: 8px;
+    height: 8px;
+    overflow: hidden;
     margin-right: 3px;
+    &:hover{
+      cursor: pointer;
+    }
     &:after{
-      content: '\25BC';
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: '';
       display: inline-block;
-      font-size: 12px;
-      line-height: 16px;
-      color: $main-color;
+      width: 0;
+      height: 0;
+      border: solid 4px transparent;
+      border-top: solid 8px $main-color;
     }
   }
   .closeIcon{
     &:after{
-      content: '\25BA';
+      border-top: solid 4px transparent;
+      border-left: solid 8px $main-color;
     }
   }
 
