@@ -16,11 +16,13 @@ class PageStructure extends PureComponent {
       PropTypes.string,
       PropTypes.object,
     ]),
+    changeChooseXpath: PropTypes.func,
     document : PropTypes.any,
   };
   static defaultProps = {
     className: {},
     document : '',
+    changeChooseXpath: () => {},
   };
 
   state = {
@@ -31,7 +33,6 @@ class PageStructure extends PureComponent {
 
   changeOpenStatus = (keyArray, status) => {
     const oldVirtualDom = this.state.virtualDomJson;
-    console.log(oldVirtualDom.getIn(keyArray));
     const newVirtualDom = oldVirtualDom.setIn(keyArray, status);
     this.setState({
       virtualDomJson: newVirtualDom,
@@ -56,15 +57,16 @@ class PageStructure extends PureComponent {
   render() {
     const {
       className,
+      changeChooseXpath,
     } = this.props;
     const virtualDomJson = this.state.virtualDomJson.toJS();
-    console.log(virtualDomJson);
     return (
       <div className={classnames(localStyles.panel, className)}>
         页面结构
         <button onClick={this.getVirtualDomJson}>测试</button>
         <Domtree
-          virtualDomJson={virtualDomJson}
+          changeChooseXpath={changeChooseXpath}
+          virtualDomJson={virtualDomJson['/html']}
           changeOpenStatus={this.changeOpenStatus}
         />
       </div>

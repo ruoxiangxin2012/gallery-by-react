@@ -7,7 +7,7 @@ import localStyles from './XpathBox.scss'
 import XpathSerch from './XpathSerch';
 import XpathList from './XpathList';
 import XpathChooseBox from './XpathChooseBox';
-import urlSource from 'mock/pageSource.json';
+import urlSource from 'mock/pageSource1.json';
 import PageStructure from '../PageStructure';
 
 class XpathBox extends PureComponent {
@@ -28,6 +28,7 @@ class XpathBox extends PureComponent {
      nodeValues: [],
    },
    document: '', // 用于传递给页面结构组件
+   chooseXpathPageStructure: '', // 用于跟pageStructure联系达到相互选择功能
  };
 
  changeUrl= newUrl =>
@@ -37,6 +38,10 @@ class XpathBox extends PureComponent {
   changeChooseXpath = newChooseXpath =>
     this.setState({
       chooseXpath: newChooseXpath,
+    });
+  changeChooseXpathPageStructure = newChooseXpath =>
+    this.setState({
+      chooseXpathPageStructure: newChooseXpath,
     });
   changeXpath = xpath =>
     this.setState({
@@ -59,6 +64,7 @@ class XpathBox extends PureComponent {
       xpathUrl,
       chooseXpath,
       document,
+      chooseXpathPageStructure,
     } = this.state;
     return (
       <div className={classnames(localStyles.XpathBox, className)}>
@@ -74,6 +80,7 @@ class XpathBox extends PureComponent {
             changeDocument={this.changeDocument}
             xpathUrl={urlSource.html}
             chooseXpath={chooseXpath.xpath}
+            chooseXpathPageStructure={chooseXpathPageStructure}
             className={localStyles.leftSilder}
           />
           <XpathList
@@ -83,7 +90,10 @@ class XpathBox extends PureComponent {
           />
         </div>
         <div className={localStyles.footer}>
-          <PageStructure document={document} />
+          <PageStructure
+            changeChooseXpath={this.changeChooseXpathPageStructure}
+            document={document}
+          />
         </div>
       </div>
     )

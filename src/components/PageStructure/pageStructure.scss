@@ -27,6 +27,10 @@
       border: solid 4px transparent;
       border-top: solid 8px $main-color;
     }
+
+    &.hide{
+      display: none;
+    }
   }
   .closeIcon{
     &:after{
@@ -40,6 +44,10 @@
     text-align: left;
     font-size: 12px;
     .nodePanel {
+
+      &.textNodePanel{
+        padding-left: 11px;
+      }
 
       .nodePanelHeader {
         &:hover{

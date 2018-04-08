@@ -14,6 +14,7 @@ class XpathChooseBox extends PureComponent {
       PropTypes.object,
     ]),
     xpathUrl: PropTypes.string,
+    chooseXpathPageStructure: PropTypes.string,
     chooseXpath: PropTypes.string, //根据传入的xpath渲染相关元素
     changeChooseXpath: PropTypes.func,
     changeDocument: PropTypes.func,
@@ -21,6 +22,7 @@ class XpathChooseBox extends PureComponent {
   static defaultProps = {
     className: '',
     xpathUrl: '',
+    chooseXpathPageStructure: '',
     chooseXpath: '',
     changeChooseXpath: () => {},
     changeDocument: () => {},
@@ -104,7 +106,7 @@ class XpathChooseBox extends PureComponent {
       if (elment.nodeType !== 1) {
         let newXpath = xpath;
         newXpath = newXpath.split('/').slice(0, -1).join('/');
-        elment = this.getElementByXPath(newXpath)[index];
+        elment = this.getElementByXPath(newXpath)[0];
       }
       chooseMask.push({
         key: index,
@@ -116,6 +118,17 @@ class XpathChooseBox extends PureComponent {
       maskAttr: {
         ...this.state.maskAttr,
         activeRects: chooseMask,
+      },
+    })
+  };
+
+  renderElementByXpathPageStruture = (xpath) => {
+    const elments = this.getElementByXPath(xpath)[0];
+    console.log(elments);
+    this.setState({
+      maskAttr: {
+        ...this.state.maskAttr,
+        hoverRect: this.getNodeRect(elments),
       },
     })
   };
@@ -162,6 +175,9 @@ class XpathChooseBox extends PureComponent {
       this.renderElementByXpath(nextProps.chooseXpath);
       const newChooseXpath = this.getChooseXpathByXpath(nextProps.chooseXpath);
       this.props.changeChooseXpath(newChooseXpath);
+    }
+    if (nextProps.chooseXpathPageStructure !== this.props.chooseXpathPageStructure) {
+      this.renderElementByXpathPageStruture(nextProps.chooseXpathPageStructure);
     }
   }
 

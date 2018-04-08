@@ -57,39 +57,49 @@ class VirtualDom {
   };
 
   getVirtualDomJson(node, parentNode, keyArray = []) {
-    const childrenNode = this.getChilrenNode(node);
-    let children = {};
-    const sortChildren = [];
-    const selfXpath = this.getSelfXpath(node, parentNode);
-    const newkeyArray = keyArray.concat(selfXpath);
-    for (let i = 0, l = childrenNode.length; i < l; i++) {
-      const domJson = this.getVirtualDomJson(childrenNode[i], node, [...newkeyArray, 'children']);
-        children = {
-        ...children,
-        ...domJson,
+    const newNode = node || this.document.documentElement;
+    const nodeType = this.getElementType(newNode);
+    const selfXpath = this.getSelfXpath(newNode, parentNode);
+    if (nodeType === 'text') {
+      return {
+        [selfXpath]: {
+          type: nodeType,
+          content: node.outerHTML
+        }
       };
-      sortChildren.push(this.getSelfXpath(childrenNode[i], node, ));
-    }
+    } else if (nodeType === 'node') {
+      const childrenNode = this.getChilrenNode(newNode);
+      let children = {};
+      const sortChildren = [];
+      const newkeyArray = keyArray.concat(selfXpath);
+      for (let i = 0, l = childrenNode.length; i < l; i++) {
+        const domJson = this.getVirtualDomJson(childrenNode[i], newNode, [...newkeyArray, 'children']);
+        children = {
+          ...children,
+          ...domJson,
+        };
+        sortChildren.push(this.getSelfXpath(childrenNode[i], newNode, ));
+      }
 
-    return {
-      [selfXpath]: {
-        title: this.getTitle(node).title,
-        titleHeader: this.getTitle(node).titleHeader,
-        titleFooter: this.getTitle(node).titleFooter,
-        content: this.getContent(node),
-        isOpen: false,
-        keyArray: newkeyArray,
-        children,
-        sortChildren,
+      return {
+        [selfXpath]: {
+          title: this.getTitle(newNode).title,
+          titleHeader: this.getTitle(newNode).titleHeader,
+          titleFooter: this.getTitle(newNode).titleFooter,
+          content: this.getContent(newNode),
+          isOpen: false,
+          keyArray: newkeyArray,
+          xpathString: this.getSelfXpath(newNode),
+          children,
+          sortChildren,
+        }
       }
     }
   };
 
   getVirtualDomFromJS() {
     return fromJS({
-      ...this.getVirtualDomJson(this.document.head),
-      ...this.getVirtualDomJson(this.document.body),
-      sortChildren: [this.getSelfXpath(this.document.head),this.getSelfXpath(this.document.body)]
+      ...this.getVirtualDomJson(),
     })
   }
 
