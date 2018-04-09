@@ -17,12 +17,18 @@ class PageStructure extends PureComponent {
       PropTypes.object,
     ]),
     changeChooseXpath: PropTypes.func,
+    changeSuperClick: PropTypes.func,
     document : PropTypes.any,
+    isSuperClick: PropTypes.bool,
+    chooseXpathPageStructure: PropTypes.string,
   };
   static defaultProps = {
     className: {},
     document : '',
     changeChooseXpath: () => {},
+    changeSuperClick: () => {},
+    isSuperClick: false,
+    chooseXpathPageStructure: '',
   };
 
   state = {
@@ -47,6 +53,9 @@ class PageStructure extends PureComponent {
     if (nextProps.document !== this.props.document) {
       this.virtualDom = new VirtualDom(nextProps.document);
     }
+    if (nextProps.chooseXpathPageStructure !== this.props.chooseXpathPageStructure) {
+      this.changeDomTreeOpenStatus(nextProps.chooseXpathPageStructure);
+    }
   };
 
   getVirtualDomJson = () =>
@@ -54,16 +63,41 @@ class PageStructure extends PureComponent {
       virtualDomJson: this.virtualDom.getVirtualDomFromJS(),
     });
 
+  getAllNeedOpenPath = (xpathArray) => {
+    const needOpenPath = [];
+    let newPath = ['/html'];
+    xpathArray.map(xpath => {
+      newPath = newPath.concat(['children', xpath]);
+      needOpenPath.push([...newPath, 'isOpen']);
+    });
+    return needOpenPath;
+  };
+
+  changeDomTreeOpenStatus = newXpath => {
+    const XpathArray = newXpath.split('/').splice(2).map(xpath => `/${xpath}`); //去掉前面的‘’
+    let newVirtualDomJson = this.state.virtualDomJson;
+    const needOpenPath = this.getAllNeedOpenPath(XpathArray);
+    needOpenPath.forEach(path => {
+      newVirtualDomJson = newVirtualDomJson.setIn(path, true);
+    });
+    console.log(newVirtualDomJson.toJS());
+    this.setState({
+      virtualDomJson: newVirtualDomJson,
+    });
+  };
+
   render() {
     const {
       className,
       changeChooseXpath,
+      isSuperClick,
+      changeSuperClick,
     } = this.props;
     const virtualDomJson = this.state.virtualDomJson.toJS();
     return (
       <div className={classnames(localStyles.panel, className)}>
-        页面结构
         <button onClick={this.getVirtualDomJson}>测试</button>
+        <button onClick={() => changeSuperClick(!isSuperClick)}>选取节点</button>
         <Domtree
           changeChooseXpath={changeChooseXpath}
           virtualDomJson={virtualDomJson['/html']}

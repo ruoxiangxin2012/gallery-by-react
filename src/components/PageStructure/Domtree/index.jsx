@@ -35,7 +35,6 @@ class Domtree extends PureComponent {
     const node = e.target;
     node.style.backgroundColor = '#CAE1E7';
     this.props.changeChooseXpath(xpaths);
-    console.log(xpaths, 111);
   };
   mouseleOut = (e) => {
     const node = e.target;
@@ -97,7 +96,6 @@ class Domtree extends PureComponent {
       sortChildren,
       children,
     } = virtualDomJson;
-    console.log(children);
     return (
       <div className={classnames(localStyles.domTreePanel, className)}>
         {

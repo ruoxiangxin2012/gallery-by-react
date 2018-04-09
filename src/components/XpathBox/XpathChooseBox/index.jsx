@@ -16,16 +16,22 @@ class XpathChooseBox extends PureComponent {
     xpathUrl: PropTypes.string,
     chooseXpathPageStructure: PropTypes.string,
     chooseXpath: PropTypes.string, //根据传入的xpath渲染相关元素
+    isSuperClick: PropTypes.bool,
     changeChooseXpath: PropTypes.func,
+    changeChooseXpathPageStructure: PropTypes.func,
     changeDocument: PropTypes.func,
+    changeSuperClick: PropTypes.func,
   };
   static defaultProps = {
     className: '',
     xpathUrl: '',
     chooseXpathPageStructure: '',
     chooseXpath: '',
+    isSuperClick: false,
     changeChooseXpath: () => {},
+    changeChooseXpathPageStructure: () => {},
     changeDocument: () => {},
+    changeSuperClick: () => {},
   };
   state = {
     maskAttr: {
@@ -51,6 +57,8 @@ class XpathChooseBox extends PureComponent {
   onIframeLoad = (e) => {
     const iframeNode = e.target || e.srcElement;
     const document = iframeNode.contentWindow.document;
+    const documentHeight = document.documentElement.offsetHeight;
+    iframeNode.style.height = documentHeight + 'px';
     this.props.changeDocument(document);
     document.oncontextmenu = e => {
       e.preventDefault();
@@ -84,8 +92,13 @@ class XpathChooseBox extends PureComponent {
       e.stopPropagation();
       e.preventDefault();
       const node = e.target;
-      const newChooseXpath = this.getChooseXpathByXpath(this.getElementXPath(node));
-      this.props.changeChooseXpath(newChooseXpath);
+      if (this.props.isSuperClick) {
+        this.props.changeChooseXpathPageStructure(this.getElementAllXPath(node));
+        this.props.changeSuperClick(false);
+      } else {
+        const newChooseXpath = this.getChooseXpathByXpath(this.getElementXPath(node));
+        this.props.changeChooseXpath(newChooseXpath);
+      }
     };
   };
   getXPather = () => this.xpath;
@@ -96,6 +109,8 @@ class XpathChooseBox extends PureComponent {
 
   getElementXPath = element =>
     this.xpath.getElementXPath(element);
+  getElementAllXPath = element =>
+    this.xpath.getElementAllXPath(element);
   getElementByXPath = xpath =>
     this.xpath.getElementByXPath(xpath);
 
@@ -123,6 +138,7 @@ class XpathChooseBox extends PureComponent {
   };
 
   renderElementByXpathPageStruture = (xpath) => {
+    console.log(xpath);
     const elments = this.getElementByXPath(xpath)[0];
     console.log(elments);
     this.setState({
@@ -208,6 +224,7 @@ class XpathChooseBox extends PureComponent {
           src="about:blank"
           srcDoc={xpathUrl}
           frameBorder="0"
+          scrolling="no"
           onLoad={this.onIframeLoad}
         />
 

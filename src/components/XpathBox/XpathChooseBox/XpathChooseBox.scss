@@ -2,6 +2,7 @@
 .xpathChooseBox{
   display: flex;
   position: relative;
+  overflow-y: auto;
 
   .iframe{
     width: 100%;

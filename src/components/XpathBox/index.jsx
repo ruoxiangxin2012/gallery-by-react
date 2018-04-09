@@ -7,7 +7,7 @@ import localStyles from './XpathBox.scss'
 import XpathSerch from './XpathSerch';
 import XpathList from './XpathList';
 import XpathChooseBox from './XpathChooseBox';
-import urlSource from 'mock/pageSource1.json';
+import urlSource from 'mock/pageSource.json';
 import PageStructure from '../PageStructure';
 
 class XpathBox extends PureComponent {
@@ -29,6 +29,7 @@ class XpathBox extends PureComponent {
    },
    document: '', // 用于传递给页面结构组件
    chooseXpathPageStructure: '', // 用于跟pageStructure联系达到相互选择功能
+   isSuperClick: false, // 用于判断点击选中节点时触发页面节点展开还是修改xpath
  };
 
  changeUrl= newUrl =>
@@ -56,6 +57,11 @@ class XpathBox extends PureComponent {
       document: newDocument,
     });
 
+  changeSuperClick = newSuperClick =>
+    this.setState({
+      isSuperClick: newSuperClick,
+    });
+
   render() {
     const {
       className,
@@ -65,6 +71,7 @@ class XpathBox extends PureComponent {
       chooseXpath,
       document,
       chooseXpathPageStructure,
+      isSuperClick,
     } = this.state;
     return (
       <div className={classnames(localStyles.XpathBox, className)}>
@@ -82,6 +89,9 @@ class XpathBox extends PureComponent {
             chooseXpath={chooseXpath.xpath}
             chooseXpathPageStructure={chooseXpathPageStructure}
             className={localStyles.leftSilder}
+            isSuperClick={isSuperClick}
+            changeSuperClick={this.changeSuperClick}
+            changeChooseXpathPageStructure={this.changeChooseXpathPageStructure}
           />
           <XpathList
             chooseXpath={chooseXpath}
@@ -91,8 +101,11 @@ class XpathBox extends PureComponent {
         </div>
         <div className={localStyles.footer}>
           <PageStructure
+            chooseXpathPageStructure={chooseXpathPageStructure}
             changeChooseXpath={this.changeChooseXpathPageStructure}
             document={document}
+            isSuperClick={isSuperClick}
+            changeSuperClick={this.changeSuperClick}
           />
         </div>
       </div>
