@@ -1,10 +1,18 @@
 @import "../../styles/color.scss";
+
+$panelHeader-height: 30px;
 .panel{
+  display: flex;
+  flex-direction: column;
   height: 100%;
   width: 100%;
   box-sizing: border-box;
   border: solid 1px $main-color;
-  overflow-y: auto;
+
+  .panelHeader {
+    height: $panelHeader-height;
+    text-align: left;
+  }
 
   .openIcon, .closeIcon{
     position: relative;
@@ -40,9 +48,11 @@
   }
 
   .domTreePanel {
+    flex-grow: 1;
     padding: 5px;
     text-align: left;
     font-size: 12px;
+    overflow-y: auto;
     .nodePanel {
 
       &.textNodePanel{

@@ -19,6 +19,7 @@ class XpathChooseBox extends PureComponent {
     isSuperClick: PropTypes.bool,
     changeChooseXpath: PropTypes.func,
     changeChooseXpathPageStructure: PropTypes.func,
+    changeOpenStruXpath: PropTypes.func,
     changeDocument: PropTypes.func,
     changeSuperClick: PropTypes.func,
   };
@@ -30,6 +31,7 @@ class XpathChooseBox extends PureComponent {
     isSuperClick: false,
     changeChooseXpath: () => {},
     changeChooseXpathPageStructure: () => {},
+    changeOpenStruXpath: () => {},
     changeDocument: () => {},
     changeSuperClick: () => {},
   };
@@ -93,7 +95,7 @@ class XpathChooseBox extends PureComponent {
       e.preventDefault();
       const node = e.target;
       if (this.props.isSuperClick) {
-        this.props.changeChooseXpathPageStructure(this.getElementAllXPath(node));
+        this.props.changeOpenStruXpath(this.getElementAllXPath(node));
         this.props.changeSuperClick(false);
       } else {
         const newChooseXpath = this.getChooseXpathByXpath(this.getElementXPath(node));
@@ -138,9 +140,7 @@ class XpathChooseBox extends PureComponent {
   };
 
   renderElementByXpathPageStruture = (xpath) => {
-    console.log(xpath);
     const elments = this.getElementByXPath(xpath)[0];
-    console.log(elments);
     this.setState({
       maskAttr: {
         ...this.state.maskAttr,

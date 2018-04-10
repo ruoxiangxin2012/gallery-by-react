@@ -92,6 +92,7 @@ class VirtualDom {
           xpathString: this.getSelfXpath(newNode),
           children,
           sortChildren,
+          isActive: false, // 用于判断该元素时候被选中，如果选中会触发相应的样式改变以及元素居中显示
         }
       }
     }

@@ -29,6 +29,7 @@ class XpathBox extends PureComponent {
    },
    document: '', // 用于传递给页面结构组件
    chooseXpathPageStructure: '', // 用于跟pageStructure联系达到相互选择功能
+   openStruXpath: '', //用于控制页面节点展开的xpath
    isSuperClick: false, // 用于判断点击选中节点时触发页面节点展开还是修改xpath
  };
 
@@ -43,6 +44,10 @@ class XpathBox extends PureComponent {
   changeChooseXpathPageStructure = newChooseXpath =>
     this.setState({
       chooseXpathPageStructure: newChooseXpath,
+    });
+  changeOpenStruXpath = newOpenStruXpath =>
+    this.setState({
+      openStruXpath: newOpenStruXpath,
     });
   changeXpath = xpath =>
     this.setState({
@@ -71,6 +76,7 @@ class XpathBox extends PureComponent {
       chooseXpath,
       document,
       chooseXpathPageStructure,
+      openStruXpath,
       isSuperClick,
     } = this.state;
     return (
@@ -91,7 +97,7 @@ class XpathBox extends PureComponent {
             className={localStyles.leftSilder}
             isSuperClick={isSuperClick}
             changeSuperClick={this.changeSuperClick}
-            changeChooseXpathPageStructure={this.changeChooseXpathPageStructure}
+            changeOpenStruXpath={this.changeOpenStruXpath}
           />
           <XpathList
             chooseXpath={chooseXpath}
@@ -101,7 +107,7 @@ class XpathBox extends PureComponent {
         </div>
         <div className={localStyles.footer}>
           <PageStructure
-            chooseXpathPageStructure={chooseXpathPageStructure}
+            openStruXpath={openStruXpath}
             changeChooseXpath={this.changeChooseXpathPageStructure}
             document={document}
             isSuperClick={isSuperClick}

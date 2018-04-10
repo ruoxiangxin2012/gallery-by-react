@@ -10,6 +10,7 @@ import VirtualDom from './VirtualDom';
 import Domtree from './Domtree';
 import localStyles from './pageStructure.scss';
 
+
 class PageStructure extends PureComponent {
   static propTypes = {
     className : PropTypes.oneOfType([
@@ -20,7 +21,7 @@ class PageStructure extends PureComponent {
     changeSuperClick: PropTypes.func,
     document : PropTypes.any,
     isSuperClick: PropTypes.bool,
-    chooseXpathPageStructure: PropTypes.string,
+    openStruXpath: PropTypes.string,
   };
   static defaultProps = {
     className: {},
@@ -28,7 +29,7 @@ class PageStructure extends PureComponent {
     changeChooseXpath: () => {},
     changeSuperClick: () => {},
     isSuperClick: false,
-    chooseXpathPageStructure: '',
+    openStruXpath: '',
   };
 
   state = {
@@ -53,8 +54,8 @@ class PageStructure extends PureComponent {
     if (nextProps.document !== this.props.document) {
       this.virtualDom = new VirtualDom(nextProps.document);
     }
-    if (nextProps.chooseXpathPageStructure !== this.props.chooseXpathPageStructure) {
-      this.changeDomTreeOpenStatus(nextProps.chooseXpathPageStructure);
+    if (nextProps.openStruXpath !== this.props.openStruXpath) {
+      this.changeDomTreeOpenStatus(nextProps.openStruXpath);
     }
   };
 
@@ -73,6 +74,16 @@ class PageStructure extends PureComponent {
     return needOpenPath;
   };
 
+  changeDomTreeActiveStatus = (virtualDomJson, newActivePath) => {
+    let newVirtualDomJson = virtualDomJson;
+    if (this.lastActivePath && this.lastActivePath !== '') {
+      newVirtualDomJson = virtualDomJson.setIn(this.lastActivePath, false);
+    }
+    newVirtualDomJson = newVirtualDomJson.setIn(newActivePath, true);
+    this.lastActivePath = newActivePath;
+    return newVirtualDomJson;
+  };
+
   changeDomTreeOpenStatus = newXpath => {
     const XpathArray = newXpath.split('/').splice(2).map(xpath => `/${xpath}`); //去掉前面的‘’
     let newVirtualDomJson = this.state.virtualDomJson;
@@ -80,7 +91,9 @@ class PageStructure extends PureComponent {
     needOpenPath.forEach(path => {
       newVirtualDomJson = newVirtualDomJson.setIn(path, true);
     });
-    console.log(newVirtualDomJson.toJS());
+    const needActiveDomPath = needOpenPath.pop();
+    needActiveDomPath.splice(-1, 1, 'isActive');
+    newVirtualDomJson = this.changeDomTreeActiveStatus(newVirtualDomJson, needActiveDomPath);
     this.setState({
       virtualDomJson: newVirtualDomJson,
     });
@@ -96,8 +109,10 @@ class PageStructure extends PureComponent {
     const virtualDomJson = this.state.virtualDomJson.toJS();
     return (
       <div className={classnames(localStyles.panel, className)}>
-        <button onClick={this.getVirtualDomJson}>测试</button>
-        <button onClick={() => changeSuperClick(!isSuperClick)}>选取节点</button>
+        <div className={localStyles.panelHeader}>
+          <button onClick={this.getVirtualDomJson}>测试</button>
+          <button onClick={() => changeSuperClick(!isSuperClick)}>选取节点</button>
+        </div>
         <Domtree
           changeChooseXpath={changeChooseXpath}
           virtualDomJson={virtualDomJson['/html']}
